@@ -6,6 +6,8 @@ import Wallet_Model from './Components/Wallet_Model/Wallet_Model';
 import Particles from 'react-tsparticles';
 import { useCallback } from 'react';
 import { loadFull } from "tsparticles";
+import { Toaster } from 'react-hot-toast';
+import Stake_History from './Components/Stake_History/Stake_History';
 
 
 
@@ -103,8 +105,10 @@ function App() {
           detectRetina: true,
         }}
       />
+       <Toaster />
           <Header />
           <Landing_Page />
+          <Stake_History/>
 
 
         </div>
