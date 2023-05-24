@@ -4,10 +4,15 @@ import { Staking, Staking_Abi } from "../../utilies/constant";
 import Web3 from "web3";
 import Countdown from "react-countdown";
 import { Modal } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  SmileOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
+import { toast } from "react-hot-toast";
 
 export default function Stake_History() {
-  let WebSupply = new Web3("https://bsc-testnet.public.blastapi.io");
+  let WebSupply = new Web3("https://bsc.publicnode.com");
   let { provider, acc, providerType, web3 } = useSelector(
     (state) => state.connectWallet
   );
@@ -32,7 +37,7 @@ export default function Stake_History() {
           staketime: stakersRecord.withdrawtime,
           amount: WebSupply.utils.fromWei(stakersRecord.amount.toString()),
           unstaked: stakersRecord.unstaked,
-          withdrawan:stakersRecord.withdrawan
+          withdrawan: stakersRecord.withdrawan,
         };
 
         Arry = [...Arry, History_obj];
@@ -90,12 +95,18 @@ export default function Stake_History() {
       console.log(error);
     }
   };
-  const Withdraw = async (index) => {
+  const Withdraw = async (index, time) => {
     try {
-      let stakingContractOf = new web3.eth.Contract(Staking_Abi, Staking);
-      await stakingContractOf.methods.withdraw(index).send({
-        from: acc,
-      });
+      let current_Time = Math.floor(new Date().getTime() / 1000.0);
+      if (current_Time <= time) {
+        toast.error("You can only claim after time period Over");
+      } else {
+        console.log("items.staketime", time);
+        let stakingContractOf = new web3.eth.Contract(Staking_Abi, Staking);
+        await stakingContractOf.methods.withdraw(index).send({
+          from: acc,
+        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -110,6 +121,17 @@ export default function Stake_History() {
             <hr className="line flex mx-auto mb-8" />
           </div>
           <div className="MuiBox-root css-ihc79b">
+            <div className="d-flex justify-content-end align-items-center mb-3">
+              <button
+                className="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-4hkj1c refershBTB"
+                tabIndex={0}
+                type="button"
+                onClick={() => Stake_History()}
+              >
+                <span className="me-2">Refresh</span>
+                <SyncOutlined className="SyncOutlined" />
+              </button>
+            </div>
             <div
               className="MuiTableContainer-root css-48ybtg"
               border="none"
@@ -161,84 +183,102 @@ export default function Stake_History() {
                   </tr>
                 </thead>
                 <tbody className="MuiTableBody-root css-1xnox0e">
-                  {Stake_History_show.map((items, index) => {
-                    return (
-                      <>
-                        {items.unstaked == true || items.withdrawan==true  ? (
-                          <></>
-                        ) : (
+                  {Stake_History_show.length == 0 ? (
+                    <>
+                      <td
+                        className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg"
+                        colSpan={5}
+                        style={{ border: "none" }}
+                      >
+                        <div className="MuiBox-root css-ehd0rl">
+                          <p className="MuiTypography-root MuiTypography-body1 css-o7q7an">
+                            You have no staking data
+                          </p>
+                        </div>
+                      </td>{" "}
+                    </>
+                  ) : (
+                    <>
+                      {Stake_History_show.map((items, index) => {
+                        let current_Time = Math.floor(
+                          new Date().getTime() / 1000.0
+                        );
+                        return (
                           <>
-                            <tr className="MuiTableRow-root css-1gqug66">
-                              <td
-                                className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
-                                scope="col"
-                              >
-                                {items.Sno}
-                              </td>
-                              <td
-                                className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
-                                scope="col"
-                              >
-                                {items.amount}
-                              </td>
-                              <td
-                                className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
-                                scope="col"
-                              >
-                                <Countdown
-                                  date={
-                                    Date.now() +
-                                    (parseInt(items.staketime) * 1000 -
-                                      Date.now())
-                                  }
-                                  renderer={renderer}
-                                />
-                              </td>
-                              <td
-                                className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
-                                scope="col"
-                              >
-                                <button
-                                  className="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-4hkj1c"
-                                  tabIndex={0}
-                                  type="button"
-                                  onClick={() => confirm(index)}
-                                >
-                                  Unstake
-                                  <span className="MuiTouchRipple-root css-w0pj6f" />
-                                </button>
-                              </td>{" "}
-                              <td
-                                className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
-                                scope="col"
-                              >
-                                <button
-                                  className="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-4hkj1c"
-                                  tabIndex={0}
-                                  type="button"
-                                  onClick={() => Withdraw(index)}
-                                >
-                                  Claim
-                                  <span className="MuiTouchRipple-root css-w0pj6f" />
-                                </button>
-                              </td>
-                            </tr>{" "}
+                            {" "}
+                            {items.unstaked == true ||
+                            items.withdrawan == true ? (
+                              <></>
+                            ) : (
+                              <>
+                                <tr className="MuiTableRow-root css-1gqug66">
+                                  <td
+                                    className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
+                                    scope="col"
+                                  >
+                                    {items.Sno}
+                                  </td>
+                                  <td
+                                    className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
+                                    scope="col"
+                                  >
+                                    {items.amount}
+                                  </td>
+                                  <td
+                                    className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
+                                    scope="col"
+                                  >
+                                    <Countdown
+                                      date={
+                                        Date.now() +
+                                        (parseInt(items.staketime) * 1000 -
+                                          Date.now())
+                                      }
+                                      renderer={renderer}
+                                    />
+                                  </td>
+                                  <td
+                                    className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
+                                    scope="col"
+                                  >
+                                    <button
+                                      className="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-4hkj1c"
+                                      tabIndex={0}
+                                      type="button"
+                                      onClick={() =>
+                                        current_Time >= items.staketime
+                                          ? Unstake(index)
+                                          : confirm(index)
+                                      }
+                                    >
+                                      Unstake
+                                      <span className="MuiTouchRipple-root css-w0pj6f" />
+                                    </button>
+                                  </td>{" "}
+                                  <td
+                                    className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg text-white text-center"
+                                    scope="col"
+                                  >
+                                    <button
+                                      className="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-4hkj1c"
+                                      tabIndex={0}
+                                      type="button"
+                                      onClick={() =>
+                                        Withdraw(index, items.staketime)
+                                      }
+                                    >
+                                      Claim
+                                      <span className="MuiTouchRipple-root css-w0pj6f" />
+                                    </button>
+                                  </td>
+                                </tr>{" "}
+                              </>
+                            )}
                           </>
-                        )}
-                      </>
-                    );
-                  })}
-                  {/* <td
-                      className="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-q34dxg"
-                      colSpan={5}
-                      style={{ border: "none" }}
-                    >
-                      <div className="MuiBox-root css-ehd0rl">
-                        <p className="MuiTypography-root MuiTypography-body1 css-o7q7an">
-                          You have no staking data
-                        </p>
-                      </div>
-                    </td> */}
+                        );
+                      })}
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>

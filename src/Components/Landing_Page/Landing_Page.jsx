@@ -9,6 +9,7 @@ import {
 } from "../../utilies/constant";
 import { toast } from "react-hot-toast";
 import Web3 from "web3";
+import axios from "axios";
 
 export default function Landing_Page() {
   let { provider, acc, providerType, web3 } = useSelector(
@@ -25,6 +26,7 @@ export default function Landing_Page() {
     Balance_of: 0,
     realtimeReward: 0,
     Token_BalanceOf: 0,
+    tvl:0
   });
 
   const Stake = async (index) => {
@@ -63,7 +65,7 @@ export default function Landing_Page() {
     }
   };
 
-  let WebSupply = new Web3("https://bsc-testnet.public.blastapi.io");
+  let WebSupply = new Web3("https://bsc.publicnode.com");
 
   const Get_Stake_history = async () => {
     try {
@@ -72,6 +74,19 @@ export default function Landing_Page() {
         tokenStaking_Abi,
         tokenStaking
       );
+
+     let res= await axios.get("https://api.geckoterminal.com/api/v2/networks/bsc/pools/0x99de46c4c86f03fed685f8c5ba580aaa80920612")
+     res=res.data.data.attributes.base_token_price_usd
+     console.log("Res",res?.data?.data?.attributes.base_token_price_usd);
+
+     let tvl = await stakingContractOf.methods.totalStakedToken().call();
+     console.log("TVL",tvl);
+     tvl = WebSupply.utils.fromWei(tvl.toString());
+      tvl=tvl*res
+      tvl=parseFloat(tvl).toFixed(3)
+     setStake_history((oldData) => {
+      return { ...oldData, tvl: tvl };
+    });
 
       let Token_BalanceOf = await tokenContractOf.methods.balanceOf(acc).call();
       console.log("Token_BalanceOf", Token_BalanceOf);
@@ -87,6 +102,7 @@ export default function Landing_Page() {
         .totalStakedToken()
         .call();
       TotalStakedToken = WebSupply.utils.fromWei(TotalStakedToken.toString());
+      TotalStakedToken=parseFloat(TotalStakedToken).toFixed(3)
       setStake_history((oldData) => {
         return { ...oldData, TotalStakedToken: TotalStakedToken };
       });
@@ -96,6 +112,7 @@ export default function Landing_Page() {
       totalWithdrawanToken = WebSupply.utils.fromWei(
         totalWithdrawanToken.toString()
       );
+      totalWithdrawanToken=parseFloat(totalWithdrawanToken).toFixed(3)
       setStake_history((oldData) => {
         return { ...oldData, totalWithdrawanToken: totalWithdrawanToken };
       });
@@ -103,6 +120,7 @@ export default function Landing_Page() {
       let Balance_of = await tokenContractOf.methods.balanceOf(Staking).call();
 
       Balance_of = WebSupply.utils.fromWei(Balance_of.toString());
+      Balance_of=parseFloat(Balance_of).toFixed(3)
       setStake_history((oldData) => {
         return { ...oldData, Balance_of: Balance_of };
       });
@@ -175,14 +193,21 @@ export default function Landing_Page() {
               <p className="font-semibold text-xl">Contract Balance</p>
               <p className="font-bold text-3xl">{Stake_history.Balance_of}</p>
             </div>
-            <div className="last_box">
+          
               <div className="bg-btn-1 p-6 lg:w-96 space-y-4">
-                <p className="font-semibold text-xl">Uncliamed Reward </p>
+                <p className="font-semibold text-xl">Unclaimed Reward </p>
                 <p className="font-bold text-3xl">
                   {Stake_history.realtimeReward}
                 </p>
               </div>
+              <div className="bg-btn-2 p-6 lg:w-96 space-y-4  ">
+              <p className="font-semibold text-xl">Total Value Locked</p>
+              <p className="font-bold text-3xl">
+                {Stake_history.tvl} $
+              </p>
             </div>
+              
+           
           </div>
           <div className="MuiBox-root css-2etnu2">
             <div className="MuiBox-root css-11az635">
