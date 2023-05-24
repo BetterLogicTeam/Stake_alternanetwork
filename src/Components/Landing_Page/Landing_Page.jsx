@@ -203,7 +203,7 @@ export default function Landing_Page() {
               <div className="bg-btn-2 p-6 lg:w-96 space-y-4  ">
               <p className="font-semibold text-xl">Total Value Locked</p>
               <p className="font-bold text-3xl">
-                {Stake_history.tvl} $
+                {Stake_history.tvl} USD
               </p>
             </div>
               
