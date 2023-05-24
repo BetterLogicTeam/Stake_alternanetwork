@@ -54,6 +54,7 @@ export default function Landing_Page() {
             from: acc,
           });
           toast.success("Transaction Successful");
+          setspinner(false);
         }
       }
     } catch (error) {
@@ -211,7 +212,7 @@ export default function Landing_Page() {
                     type="text"
                     className="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd css-b52kj1"
                     value={plan == 0 ? getInput : ""}
-                    onChange={(e) => setgetInput(e.target.value)}
+                    onChange={(e) => (setgetInput(e.target.value), setplan(0))}
                   />
                   <div
                     className="MuiBox-root css-1fmwmta"
@@ -275,8 +276,8 @@ export default function Landing_Page() {
                     placeholder="Enter Alterna to Stake"
                     type="text"
                     className="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd css-b52kj1"
-                    onChange={(e) => setgetInput(e.target.value)}
-                    value={plan == 1 ? getInput : ""}
+                    onChange={(e) => (setgetInput(e.target.value), setplan(1))}
+                    defaultValue={plan == 1 ? getInput : ""}
                   />
                   <div
                     className="MuiBox-root css-1fmwmta"
@@ -339,8 +340,8 @@ export default function Landing_Page() {
                     placeholder="Enter Alterna to Stake"
                     type="text"
                     className="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd css-b52kj1"
-                    onChange={(e) => setgetInput(e.target.value)}
-                    value={plan == 2 ? getInput : ""}
+                    onChange={(e) => (setgetInput(e.target.value), setplan(2))}
+                    defaultValue={plan == 2 ? getInput : ""}
                   />
                   <div
                     className="MuiBox-root css-1fmwmta"
